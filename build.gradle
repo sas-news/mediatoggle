@@ -1,0 +1,15 @@
+plugins {
+    id 'com.android.application' version '8.2.2'
+}
+
+android {
+    namespace 'dev.sasnews.mediatoggle'
+    compileSdk 34
+    defaultConfig {
+        applicationId "dev.sasnews.mediatoggle"
+        minSdk 21
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+}
