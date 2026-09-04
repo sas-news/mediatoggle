@@ -14,90 +14,90 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 public class MainActivity extends Activity {
+    // Theme.NoDisplay activities MUST finish() inside onCreate (before onResume),
+    // so all delayed work runs on app-scoped static state only. The activity
+    // instance is never referenced from the pending Runnable.
+    private static Context sApp;
     private static final Handler handler = new Handler(Looper.getMainLooper());
     private static Runnable pending;
     private static final ArrayList<Long> tapTimes = new ArrayList<>();
 
-    private AudioManager audioManager;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         try {
-            SharedPreferences prefs = getApplicationContext()
-                    .getSharedPreferences(PrefsConfig.PREFS_NAME, MODE_PRIVATE);
+            if (sApp == null) {
+                sApp = getApplicationContext();
+            }
+            final SharedPreferences prefs =
+                    sApp.getSharedPreferences(PrefsConfig.PREFS_NAME, MODE_PRIVATE);
             final int windowMs = PrefsConfig.getTapWindowMs(prefs);
-            final SharedPreferences finalPrefs = prefs;
+            tapTimes.add(SystemClock.elapsedRealtime());
+            if (pending == null) {
+                pending = new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            pending = null;
+                            long[] times = new long[tapTimes.size()];
+                            for (int i = 0; i < times.length; i++) {
+                                times[i] = tapTimes.get(i);
+                            }
+                            int count = TapSequence.classifyTapCount(times, windowMs);
+                            tapTimes.clear();
 
-            audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                            SharedPreferences firePrefs = sApp.getSharedPreferences(
+                                    PrefsConfig.PREFS_NAME, MODE_PRIVATE);
+                            PrefsConfig.Action action;
+                            if (count >= 3) {
+                                action = PrefsConfig.getTripleTap(firePrefs);
+                            } else if (count == 2) {
+                                action = PrefsConfig.getDoubleTap(firePrefs);
+                            } else {
+                                action = PrefsConfig.getSingleTap(firePrefs);
+                            }
 
-            registerTap(finalPrefs, windowMs);
+                            int keyCode;
+                            switch (action) {
+                                case NEXT:
+                                    keyCode = KeyEvent.KEYCODE_MEDIA_NEXT;
+                                    break;
+                                case PREVIOUS:
+                                    keyCode = KeyEvent.KEYCODE_MEDIA_PREVIOUS;
+                                    break;
+                                default:
+                                    keyCode = KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE;
+                                    break;
+                            }
+
+                            // TODO-DEBUG: remove after device diagnosis
+                            try {
+                                Toast.makeText(sApp, "MediaToggle: tap " + count + " -> " + action, Toast.LENGTH_SHORT).show();
+                            } catch (Throwable ignored) {
+                            }
+                            AudioManager am = (AudioManager) sApp.getSystemService(Context.AUDIO_SERVICE);
+                            if (am != null) {
+                                am.dispatchMediaKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
+                                am.dispatchMediaKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, keyCode));
+                            }
+                        } catch (Throwable t) {
+                            // never crash: headless dispatch must stay silent
+                        } finally {
+                            pending = null;
+                        }
+                    }
+                };
+                handler.postDelayed(pending, windowMs);
+            }
         } catch (Throwable t) {
+            // fall through to finish()
+        } finally {
+            // REQUIRED by Theme.NoDisplay: finish synchronously in onCreate,
+            // before onResume(). Delayed dispatch continues on static state.
             try {
                 finish();
             } catch (Throwable ignored) {
             }
-        }
-    }
-
-    private void registerTap(final SharedPreferences prefs, final int windowMs) {
-        tapTimes.add(SystemClock.elapsedRealtime());
-        if (pending == null) {
-            pending = new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        pending = null;
-                        long[] times = new long[tapTimes.size()];
-                        for (int i = 0; i < times.length; i++) {
-                            times[i] = tapTimes.get(i);
-                        }
-                        int count = TapSequence.classifyTapCount(times, windowMs);
-                        tapTimes.clear();
-
-                        PrefsConfig.Action action;
-                        if (count >= 3) {
-                            action = PrefsConfig.getTripleTap(prefs);
-                        } else if (count == 2) {
-                            action = PrefsConfig.getDoubleTap(prefs);
-                        } else {
-                            action = PrefsConfig.getSingleTap(prefs);
-                        }
-
-                        int keyCode;
-                        switch (action) {
-                            case NEXT:
-                                keyCode = KeyEvent.KEYCODE_MEDIA_NEXT;
-                                break;
-                            case PREVIOUS:
-                                keyCode = KeyEvent.KEYCODE_MEDIA_PREVIOUS;
-                                break;
-                            default:
-                                keyCode = KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE;
-                                break;
-                        }
-
-                        // TODO-DEBUG: remove after device diagnosis
-                        try {
-                            Toast.makeText(getApplicationContext(), "MediaToggle: tap " + count + " -> " + action, Toast.LENGTH_SHORT).show();
-                        } catch (Throwable ignored) {
-                        }
-                        if (audioManager != null) {
-                            audioManager.dispatchMediaKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
-                            audioManager.dispatchMediaKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, keyCode));
-                        }
-                    } catch (Throwable t) {
-                        // never crash: fall through to finish()
-                    } finally {
-                        try {
-                            finish();
-                        } catch (Throwable ignored) {
-                        }
-                    }
-                }
-            };
-            handler.postDelayed(pending, windowMs);
         }
     }
 }
