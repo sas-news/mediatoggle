@@ -13,5 +13,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".SettingsActivity" android:exported="true" />
+        <activity android:name=".DispatchActivity" android:theme="@android:style/Theme.NoDisplay" android:taskAffinity="" android:exported="true" android:excludeFromRecents="true" android:noHistory="true" />
     </application>
 </manifest>
