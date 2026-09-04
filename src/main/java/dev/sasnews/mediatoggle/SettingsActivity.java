@@ -27,6 +27,7 @@ public class SettingsActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        try {
         final float density = getResources().getDisplayMetrics().density;
         final int padding = (int) (16 * density + 0.5f);
 
@@ -62,6 +63,7 @@ public class SettingsActivity extends Activity {
         Button save = new Button(this);
         save.setText("\u4fdd\u5b58");
         save.setOnClickListener(v -> {
+            try {
             SharedPreferences prefs =
                     getSharedPreferences(PrefsConfig.PREFS_NAME, MODE_PRIVATE);
             SharedPreferences.Editor editor = prefs.edit();
@@ -70,7 +72,13 @@ public class SettingsActivity extends Activity {
             PrefsConfig.saveAction(editor, PrefsConfig.KEY_TRIPLE, selected(tripleGroup));
             PrefsConfig.saveTapWindowMs(editor, Math.round(windowSlider.getValue()));
             editor.apply();
-            finish();
+            } catch (Throwable t) {
+            } finally {
+                try {
+                    finish();
+                } catch (Throwable ignored) {
+                }
+            }
         });
         root.addView(save);
 
@@ -79,6 +87,12 @@ public class SettingsActivity extends Activity {
         SharedPreferences prefs =
                 getSharedPreferences(PrefsConfig.PREFS_NAME, MODE_PRIVATE);
         load(prefs);
+        } catch (Throwable t) {
+            try {
+                finish();
+            } catch (Throwable ignored) {
+            }
+        }
     }
 
     private RadioGroup addActionRow(LinearLayout root, String label) {
