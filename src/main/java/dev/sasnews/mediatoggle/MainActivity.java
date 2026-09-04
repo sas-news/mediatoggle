@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
@@ -33,6 +34,8 @@ public class MainActivity extends Activity {
                     sApp.getSharedPreferences(PrefsConfig.PREFS_NAME, MODE_PRIVATE);
             final int windowMs = PrefsConfig.getTapWindowMs(prefs);
             tapTimes.add(SystemClock.elapsedRealtime());
+            // TODO-DEBUG: remove after device diagnosis
+            Log.d("MediaToggle", "tap n=" + tapTimes.size() + " scheduling=" + (pending == null));
             if (pending == null) {
                 pending = new Runnable() {
                     @Override
@@ -70,6 +73,8 @@ public class MainActivity extends Activity {
                                     break;
                             }
 
+                            // TODO-DEBUG: remove after device diagnosis
+                            Log.d("MediaToggle", "fire taps=" + times.length + " count=" + count + " action=" + action);
                             // TODO-DEBUG: remove after device diagnosis
                             try {
                                 Toast.makeText(sApp, "MediaToggle: tap " + count + " -> " + action, Toast.LENGTH_SHORT).show();
