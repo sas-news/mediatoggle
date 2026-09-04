@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shortcut_play_pause">再生/停止</string>
+    <string name="shortcut_next">次の曲</string>
+    <string name="shortcut_prev">前の曲</string>
+    <string name="shortcut_settings">設定</string>
+</resources>

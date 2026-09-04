@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="play_pause"
+        android:enabled="true"
+        android:shortcutShortLabel="@string/shortcut_play_pause">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="dev.sasnews.mediatoggle"
+            android:targetClass="dev.sasnews.mediatoggle.DispatchActivity">
+            <extra android:name="action" android:value="PLAY_PAUSE" />
+        </intent>
+    </shortcut>
+    <shortcut
+        android:shortcutId="next_song"
+        android:enabled="true"
+        android:shortcutShortLabel="@string/shortcut_next">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="dev.sasnews.mediatoggle"
+            android:targetClass="dev.sasnews.mediatoggle.DispatchActivity">
+            <extra android:name="action" android:value="NEXT" />
+        </intent>
+    </shortcut>
+    <shortcut
+        android:shortcutId="prev_song"
+        android:enabled="true"
+        android:shortcutShortLabel="@string/shortcut_prev">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="dev.sasnews.mediatoggle"
+            android:targetClass="dev.sasnews.mediatoggle.DispatchActivity">
+            <extra android:name="action" android:value="PREVIOUS" />
+        </intent>
+    </shortcut>
+    <shortcut
+        android:shortcutId="settings"
+        android:enabled="true"
+        android:shortcutShortLabel="@string/shortcut_settings">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="dev.sasnews.mediatoggle"
+            android:targetClass="dev.sasnews.mediatoggle.SettingsActivity" />
+    </shortcut>
+</shortcuts>
