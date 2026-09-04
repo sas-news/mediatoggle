@@ -35,9 +35,10 @@ public class MainActivity extends Activity {
             final int windowMs = PrefsConfig.getTapWindowMs(prefs);
             tapTimes.add(SystemClock.elapsedRealtime());
             // TODO-DEBUG: remove after device diagnosis
-            Log.d("MediaToggle", "tap n=" + tapTimes.size() + " scheduling=" + (pending == null));
-            if (pending == null) {
-                pending = new Runnable() {
+            Log.d("MediaToggle", "tap n=" + tapTimes.size());
+            // Promotion: each in-window tap pushes the deadline out by windowMs.
+            if (pending != null) { handler.removeCallbacks(pending); pending = null; }
+            pending = new Runnable() {
                     @Override
                     public void run() {
                         try {
@@ -91,9 +92,8 @@ public class MainActivity extends Activity {
                             pending = null;
                         }
                     }
-                };
-                handler.postDelayed(pending, windowMs);
-            }
+            };
+            handler.postDelayed(pending, windowMs);
         } catch (Throwable t) {
             // fall through to finish()
         } finally {
