@@ -3,7 +3,6 @@ package dev.sasnews.mediatoggle;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -73,9 +72,7 @@ public class SettingsActivity extends Activity {
             PrefsConfig.saveAction(editor, PrefsConfig.KEY_TRIPLE, selected(tripleGroup));
             PrefsConfig.saveTapWindowMs(editor, Math.round(windowSlider.getValue()));
             editor.apply();
-            } catch (Throwable t) {
-                // TODO-DEBUG: remove after device diagnosis
-                Log.e("SettingsActivity", "save failed", t);
+            } catch (Throwable ignored) {
             } finally {
                 try {
                     finish();
@@ -91,8 +88,6 @@ public class SettingsActivity extends Activity {
                 getSharedPreferences(PrefsConfig.PREFS_NAME, MODE_PRIVATE);
         load(prefs);
         } catch (Throwable t) {
-            // TODO-DEBUG: remove after device diagnosis
-            Log.e("SettingsActivity", "onCreate failed", t);
             try {
                 finish();
             } catch (Throwable ignored) {
