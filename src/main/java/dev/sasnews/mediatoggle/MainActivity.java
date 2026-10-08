@@ -8,9 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
-import android.util.Log;
 import android.view.KeyEvent;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -34,8 +32,6 @@ public class MainActivity extends Activity {
                     sApp.getSharedPreferences(PrefsConfig.PREFS_NAME, MODE_PRIVATE);
             final int windowMs = PrefsConfig.getTapWindowMs(prefs);
             tapTimes.add(SystemClock.elapsedRealtime());
-            // TODO-DEBUG: remove after device diagnosis
-            Log.d("MediaToggle", "tap n=" + tapTimes.size());
             // Promotion: each in-window tap pushes the deadline out by windowMs.
             if (pending != null) { handler.removeCallbacks(pending); pending = null; }
             pending = new Runnable() {
@@ -74,13 +70,6 @@ public class MainActivity extends Activity {
                                     break;
                             }
 
-                            // TODO-DEBUG: remove after device diagnosis
-                            Log.d("MediaToggle", "fire taps=" + times.length + " count=" + count + " action=" + action);
-                            // TODO-DEBUG: remove after device diagnosis
-                            try {
-                                Toast.makeText(sApp, "MediaToggle: tap " + count + " -> " + action, Toast.LENGTH_SHORT).show();
-                            } catch (Throwable ignored) {
-                            }
                             AudioManager am = (AudioManager) sApp.getSystemService(Context.AUDIO_SERVICE);
                             if (am != null) {
                                 am.dispatchMediaKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));

@@ -3,12 +3,12 @@ package dev.sasnews.mediatoggle;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.google.android.material.slider.Slider;
@@ -37,7 +37,7 @@ public class SettingsActivity extends Activity {
         root.setPadding(padding, padding, padding, padding);
         root.setLayoutParams(new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
+                ViewGroup.LayoutParams.WRAP_CONTENT));
 
         singleGroup = addActionRow(root, "\u30b7\u30f3\u30b0\u30eb\u30bf\u30c3\u30d7");
         doubleGroup = addActionRow(root, "\u30c0\u30d6\u30eb\u30bf\u30c3\u30d7");
@@ -73,9 +73,7 @@ public class SettingsActivity extends Activity {
             PrefsConfig.saveAction(editor, PrefsConfig.KEY_TRIPLE, selected(tripleGroup));
             PrefsConfig.saveTapWindowMs(editor, Math.round(windowSlider.getValue()));
             editor.apply();
-            } catch (Throwable t) {
-                // TODO-DEBUG: remove after device diagnosis
-                Log.e("SettingsActivity", "save failed", t);
+            } catch (Throwable ignored) {
             } finally {
                 try {
                     finish();
@@ -85,14 +83,16 @@ public class SettingsActivity extends Activity {
         });
         root.addView(save);
 
-        setContentView(root);
+        // The stacked radio groups overflow on short/landscape screens;
+        // wrap in a ScrollView so every control stays reachable.
+        ScrollView scroll = new ScrollView(this);
+        scroll.addView(root);
+        setContentView(scroll);
 
         SharedPreferences prefs =
                 getSharedPreferences(PrefsConfig.PREFS_NAME, MODE_PRIVATE);
         load(prefs);
         } catch (Throwable t) {
-            // TODO-DEBUG: remove after device diagnosis
-            Log.e("SettingsActivity", "onCreate failed", t);
             try {
                 finish();
             } catch (Throwable ignored) {
